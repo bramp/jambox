@@ -1,0 +1,467 @@
+Bookmark:                        -
+Trigger Indicator:               No
+I/O Direction:                   Outbound
+Error Indicator:                 Success
+Device:                          Jawbone Updating
+Counter:                         492
+Originator:                      libusb0.sys
+Start Time:                      00:00:07.809
+Execution Time:                  4.962 msec
+Command 1:                       Class Device
+Command 2:                       Request = 00h
+
+Error Summary:                   The operation completed successfully. (00000000h)
+
+Raw Data
+00000000  -  00 FC 23 C2 00 00 11 00 3B 71 03 70 00 00 08 01  -  ..#.....;q.p....
+00000010  -  09 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00  -  ................
+00000020  -  00 00 00 00 00 00                                -  ......          
+
+
+Bookmark:                        -
+Trigger Indicator:               No
+I/O Direction:                   Inbound
+Error Indicator:                 Success
+Device:                          Jawbone Updating
+Counter:                         493
+Originator:                      jawboneupdater.exe
+Start Time:                      00:00:07.818
+Execution Time:                  3.321 msec
+Command 1:                       Bulk or Interrupt Transfer
+Command 2:                       Interrupt 81h - Inbound
+
+Error Summary:                   The operation completed successfully. (00000000h)
+
+Raw Data
+00000000  -  FF 23 C2 01 00 11 00 3B 71 03 70 00 00 08 01 09  -  .#.....;q.p.....
+00000010  -  00 80 00 4A 41 4D 42 4F 58 20 62 79 20 4A 61 77  -  ...JAMBOX by Jaw
+00000020  -  62 6F 6E 65 00                                   -  bone.           
+
+----
+grep "interrupt\|control" driver.log 
+
+                                   ** Seq Number?
+    00000000: ff 23 c2 01 00 11 00 bf 74 03 70 00 00 08 01 09
+    00000010: 00 80 00 4a 41 4d 42 4f 58 20 62 79 20 4a 61 77
+    00000020: 62 6f 6e 65 00
+
+    00000000: ff 23 c2 01 00 11 00 fa 74 03 70 00 00 08 01 09
+    00000010: 00 80 00 4a 41 4d 42 4f 58 20 62 79 20 4a 61 77
+    00000020: 62 6f 6e 65 00
+
+
+URB 18 going down - Looks like first packet
+
+URB 32 coming back - Has JAMBOX in it
+
+
+gcc driver.c -o driver -lusb
+sudo ./driver 1f6f 0023
+
+Number of possible configurations: 1  Device Class: 0  VendorID: 8047  ProductID: 35
+Interfaces: 1 ||| Number of alternate settings: 1 | Interface Number: 0 | Number of endpoints: 1 | Descriptor Type: 5 | EP Address: 129 | 
+
+
+
+[ 3208.298540] usb 2-1.2: >new full-speed USB device number 5 using ehci_hcd
+[ 3208.894510] usb 2-1.2: >New USB device found, idVendor=1f6f, idProduct=0023
+[ 3208.894520] usb 2-1.2: >New USB device strings: Mfr=1, Product=2, SerialNumber=3
+[ 3208.894526] usb 2-1.2: >Product: Jawbone
+[ 3208.894530] usb 2-1.2: >Manufacturer: Aliph
+[ 3208.894534] usb 2-1.2: >SerialNumber: Jawbone_00213C7B2F5B
+[ 3208.949281] hid-generic 0003:1F6F:0023.0003: >hiddev0,hidraw0: USB HID v1.11 Device [Aliph Jawbone] on usb-0000:00:1d.0-1.2/input0
+
+
+URB 17
+    00000000: 00 fc 13 c2 00 00 09 00 f5 74 06 30 00 00 6c 22
+    00000010: 00 00 00 00 00 00
+
+    00000000: 00 fc 13 c2 00 00 09 00 ba 74 06 30 00 00 6c 22
+    00000010: 00 00 00 00 00 00
+
+sudo rmmod usbhid && sudo modprobe usbhid usbhid.quirks=0x1f6f:0x0023:0x04
+
+Bus 002 Device 003: ID 1f6f:0023 Aliph Jawbone JAMBOX
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            0 (Defined at Interface level)
+  bDeviceSubClass         0 
+  bDeviceProtocol         0 
+  bMaxPacketSize0        64
+  idVendor           0x1f6f Aliph
+  idProduct          0x0023 Jawbone JAMBOX
+  bcdDevice           67.59
+  iManufacturer           1 Aliph
+  iProduct                2 Jawbone
+  iSerial                 3 Jawbone_00213C7B2F5B
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength           34
+    bNumInterfaces          1
+    bConfigurationValue     1
+    iConfiguration          0 
+    bmAttributes         0x80
+      (Bus Powered)
+    MaxPower              500mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      0 No Subclass
+      bInterfaceProtocol      0 None
+      iInterface              0 
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.11
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength      29
+          Report Descriptor: (length is 29)
+            Item(Global): Usage Page, data= [ 0x00 0x0b ] 2816
+                            (null)
+            Item(Local ): Usage, data= [ 0x05 ] 5
+                            (null)
+            Item(Main  ): Collection, data= [ 0x01 ] 1
+                            Application
+            Item(Local ): Usage, data= [ 0x01 ] 1
+                            (null)
+            Item(Global): Report Size, data= [ 0x08 ] 8
+            Item(Global): Report Count, data= [ 0x23 ] 35
+            Item(Global): Logical Maximum, data= [ 0xff 0x00 ] 255
+            Item(Global): Logical Minimum, data= [ 0x00 ] 0
+            Item(Main  ): Input, data= [ 0x02 0x01 ] 258
+                            Data Variable Absolute No_Wrap Linear
+                            Preferred_State No_Null_Position Non_Volatile Buffered Bytes
+            Item(Local ): Usage, data= [ 0x01 ] 1
+                            (null)
+            Item(Global): Report Count, data= [ 0x23 ] 35
+            Item(Main  ): Output, data= [ 0x02 0x01 ] 258
+                            Data Variable Absolute No_Wrap Linear
+                            Preferred_State No_Null_Position Non_Volatile Buffered Bytes
+            Item(Main  ): End Collection, data=none
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               1
+
+
+
+
+When plugged in there seems to be no special driver. When the updater app is launched it keeps calling "Get Descriptor". When the webpage (which speaks to the app) is launched the real fun starts.
+Lots of stuff happens, and the devices changes it's name
+
+0x1f6f 0x8000
+
+
+
+Bus 002 Device 014: ID 1f6f:8000 Aliph 
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass          224 Wireless
+  bDeviceSubClass         1 Radio Frequency
+  bDeviceProtocol         1 Bluetooth
+  bMaxPacketSize0        64
+  idVendor           0x1f6f Aliph
+  idProduct          0x8000 
+  bcdDevice           67.59
+  iManufacturer           1 Aliph
+  iProduct                2 Jawbone
+  iSerial                 3 Jawbone_00213C7B2F5B
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength          193
+    bNumInterfaces          3
+    bConfigurationValue     1
+    iConfiguration          0 
+    bmAttributes         0x80
+      (Bus Powered)
+    MaxPower              500mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           3
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass      1 
+      bInterfaceProtocol      1 
+      iInterface              0 
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0010  1x 16 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x02  EP 2 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass       224 Wireless
+      bInterfaceSubClass      1 Radio Frequency
+      bInterfaceProtocol      1 Bluetooth
+      iInterface              0 
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x03  EP 3 OUT
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0000  1x 0 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0000  1x 0 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       1
+      bNumEndpoints           2
+      bInterfaceClass       224 Wireless
+      bInterfaceSubClass      1 Radio Frequency
+      bInterfaceProtocol      1 Bluetooth
+      iInterface              0 
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x03  EP 3 OUT
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0009  1x 9 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0009  1x 9 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       2
+      bNumEndpoints           2
+      bInterfaceClass       224 Wireless
+      bInterfaceSubClass      1 Radio Frequency
+      bInterfaceProtocol      1 Bluetooth
+      iInterface              0 
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x03  EP 3 OUT
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0011  1x 17 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0011  1x 17 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       3
+      bNumEndpoints           2
+      bInterfaceClass       224 Wireless
+      bInterfaceSubClass      1 Radio Frequency
+      bInterfaceProtocol      1 Bluetooth
+      iInterface              0 
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x03  EP 3 OUT
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0019  1x 25 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0019  1x 25 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       4
+      bNumEndpoints           2
+      bInterfaceClass       224 Wireless
+      bInterfaceSubClass      1 Radio Frequency
+      bInterfaceProtocol      1 Bluetooth
+      iInterface              0 
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x03  EP 3 OUT
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0021  1x 33 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0021  1x 33 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       5
+      bNumEndpoints           2
+      bInterfaceClass       224 Wireless
+      bInterfaceSubClass      1 Radio Frequency
+      bInterfaceProtocol      1 Bluetooth
+      iInterface              0 
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x03  EP 3 OUT
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0031  1x 49 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            1
+          Transfer Type            Isochronous
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0031  1x 49 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        2
+      bAlternateSetting       0
+      bNumEndpoints           0
+      bInterfaceClass       254 Application Specific Interface
+      bInterfaceSubClass      1 Device Firmware Update
+      bInterfaceProtocol      0 
+      iInterface              0 
+      Device Firmware Upgrade Interface Descriptor:
+        bLength                             7
+        bDescriptorType                    33
+        bmAttributes                        7
+          Will Not Detach
+          Manifestation Tolerant
+          Upload Supported
+          Download Supported
+        wDetachTimeout                   5000 milliseconds
+        wTransferSize                    1023 bytes
+
+
+
+0x16 = 0x09    22  - 9      13
+  18   0x0a    24  - 10     14
+  1c - 0x0c    28  - 12     16
+  20   0x0e    32  - 14     18
+  24   0x10    36  - 16     20
+  26   0x11    38  - 17     21
+  6a   0x33   106  - 51     55
+
+
+\xfc\x23\xc2\x00\x00\x11\x00\xfa\x74\x03\x70\x00\x00\x08\x01\x09\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+  ff  23  c2  01  00  11  00  fa  74  03  70  00  00  08  01  09  00  80  00  4a  41  4d  42  4f  58  20  62  79  20  4a  61  77  62  6f  6e  65  00
+
+
+Jawbone Name
+Voice Announcements  On/Off
+CallerId On/Off
+LiveAudio On/Off
+SoundClarity On/Off
+Connections
+ubuntu-0
+Nexsus S 4G
+Jawbone Link
+
+
+32  Jambox name
+98  ubunto
+104 Nexsus S 4G
